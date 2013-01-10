@@ -3,38 +3,31 @@
 
 class Object
 {
-    private $parent;
-    private $properties = [];
-    private $methods = [];
-    private $object;
-    private $heads = [];
+    private $refs = [];
+    private $local = [];
 
     public function __construct()
     {
         $args = func_get_args();
         if (count($args) == 2 && is_object($args[0]) && is_array($args[1])) {
-            list($this->parent, $this->object) = $args;
+            list($this->refs['parent'], $this->local) = $args;
         } elseif (count($args) == 1 && is_array($args[0])) {
-            list($this->object) = $args;
-        } else {
-            throw new \InvalidArgumentException('Invalid parameters');
+            list($this->local) = $args;
         }
-    }
-
-    public function parent()
-    {
-        return $this->parent;
     }
 
     public function __get($key)
     {
         $value = null;
-        if (array_key_exists($key, $this->methods)) {
-            $value = $this->methods[$key];
-        } elseif (array_key_exists($key, $this->object)) {
-            $value = $this->object[$key];
-        } elseif (is_object($this->parent)) {
-            $value = $this->parent->{$key};
+        if (isset($this->refs[$key])) {
+            $value = $this->refs[$key];
+        } elseif (array_key_exists($key, $this->local)) {
+            $value = $this->local[$key];
+            if ($value instanceof Closure) {
+                $value = $value->bindTo($this);
+            }
+        } elseif (isset($this->refs['parent'])) {
+            $value = $this->refs['parent']->{$key};
         }
 
         return $value;
@@ -42,34 +35,37 @@ class Object
 
     public function __set($key, $value)
     {
-        if ($value instanceof Closure
-            && isset($this->object[$key])
+        if ($key == 'parent') {
+            throw new BadMethodCallException('Forbidden to redefine parent');
+        } elseif ($value instanceof Closure
+            && isset($this->local[$key])
+            && $this->local[$key] instanceof Closure
         ) {
-            $this->methods[$key] = new self($this, []);
-            $this->methods[$key]->{$key} = $value;
-            //$this->heads[$key] = $this->methods[$key];
-        } elseif ($value instanceof Closure) {
-            $this->object[$key] = $value;
+            $this->refs[$key] = new static($this, [$key => $value]);
         } else {
-            $this->object[$key] = $value;
+            $this->local[$key] = $value;
         }
     }
 
     public function __call($method, array $args)
     {
         $value = null;
-        if (array_key_exists($method, $this->methods)) {
+        $pointer = isset($args['__pointer__']) ? $args['__pointer__'] : $this;
+        if (isset($this->refs[$method]) && $this->refs[$method] !== $pointer) {
+            $args['__pointer__'] = $pointer;
             $value = call_user_func_array(
-                $this->methods[$method]->{$method}->bindTo($this->methods[$method]),
+                $this->refs[$method]->{$method},
                 $args
             );
-        }elseif(array_key_exists($method, $this->object)){
+        } elseif (
+            isset($this->local[$method])
+            && $this->local[$method] instanceof Closure
+        ) {
+            unset($args['__pointer__']);
             $value = call_user_func_array(
-                $this->object[$method]->bindTo($this),
+                $this->local[$method],
                 $args
             );
-        } elseif (is_object($this->parent)) {
-            $value = call_user_func_array([$this->parent, $method], $args);
         }
 
         return $value;
@@ -77,12 +73,12 @@ class Object
 }
 
 
-$o = new Object([]);
+$o = new Object();
 $o->getNumber = function () {
     return 1;
 };
 $o->getNumber = function () {
-    return 2;
+    return $this->parent;
 };
 
 var_dump([
