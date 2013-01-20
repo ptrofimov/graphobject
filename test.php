@@ -25,10 +25,10 @@ var_dump([
 
 $o = new Object();
 $o->getNumber = function () {
-    return 1;
+    return $this->property;
 };
 $o->getNumber = function () {
-    return $this->parent() * 3;
+    return $this->parent();
 };
 $o->property='property';
 $o->getProperty=function(){
@@ -36,6 +36,5 @@ $o->getProperty=function(){
 };
 
 var_dump([
-    $o->getNumber(),
-    $o->getProperty(),
+    $o->getNumber->parent(),
 ]);

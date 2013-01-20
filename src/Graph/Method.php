@@ -5,6 +5,7 @@ class Method
 {
     private $_parent;
     private $method;
+    private $context;
 
     public function __construct()
     {
@@ -19,14 +20,19 @@ class Method
         ) {
             list($this->method) = $args;
         } else {
-            throw new InvalidArgumentException('Invalid args');
+            throw new \InvalidArgumentException('Invalid args');
         }
         $this->method = $this->method->bindTo($this);
     }
 
+    public function setContext($context)
+    {
+        $this->context = $context;
+    }
+
     public function __get($key)
     {
-        return $key == 'parent' ? $this->_parent : null;
+        return $key == 'parent' ? $this->_parent : $this->context->{$key};
     }
 
     public function parent()

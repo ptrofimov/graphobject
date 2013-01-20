@@ -3,20 +3,24 @@ namespace Graph;
 
 class Object
 {
-    private $methods = [];
+    private $object = [];
 
     public function __set($key, $value)
     {
-        if (!isset($this->methods[$key])) {
-            $this->methods[$key] = new Method($value);
+        if (!$value instanceof \Closure) {
+            $this->object[$key] = $value;
+        } else if (!isset($this->object[$key])) {
+            $this->object[$key] = new Method($value);
+            $this->object[$key]->setContext($this);
         } else {
-            $this->methods[$key] = new Method($this->methods[$key], $value);
+            $this->object[$key] = new Method($this->object[$key], $value);
+            $this->object[$key]->setContext($this);
         }
     }
 
     public function __get($key)
     {
-        return isset($this->methods[$key]) ? $this->methods[$key] : null;
+        return isset($this->object[$key]) ? $this->object[$key] : null;
     }
 
     public function __call($method, array $args)
