@@ -3,16 +3,33 @@ namespace Graph;
 
 class Object
 {
+    private $_parent;
     private $object = [];
 
     public function __construct()
     {
         $args = func_get_args();
-        if (count($args) == 1 && is_array($args)) {
+        if (count($args) == 1 && is_array($args[0])) {
             foreach ($args[0] as $key => $value) {
                 $this->{$key} = $value;
             }
         }
+        /*elseif(count($args)==1&&$args[0] instanceof Object){
+
+                } else {
+                    $object = null;
+                    foreach ($args as $arg) {
+                        if (is_array($arg)) {
+                            $object = new Object($arg);
+                        } elseif ($arg instanceof Object) {
+                            $object = $arg;
+                        } else {
+                            throw new \InvalidArgumentException(
+                                'Args must be either array or Object instance'
+                            );
+                        }
+                    }
+                }*/
     }
 
     public function __set($key, $value)

@@ -91,4 +91,18 @@ class MethodTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('updated', $me->property);
         $this->assertSame('updated', $context->property);
     }
+
+    public function testExtend()
+    {
+        $m1 = new Method(function () {
+            return 1;
+        });
+        $m2 = $m1->extend(function () {
+            return 2;
+        });
+
+        $this->assertSame(1, $m1());
+        $this->assertSame(2, $m2());
+        $this->assertSame(1, $m2->parent());
+    }
 }

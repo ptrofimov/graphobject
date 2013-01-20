@@ -69,4 +69,31 @@ class ObjectText extends \PHPUnit_Framework_TestCase
         $this->assertSame(1, $me->number);
         $this->assertSame($me->setNumber, $me->setNumber->setNumber);
     }
+
+    /*public function testInheritance()
+    {
+        $me = new Object([
+            'number' => 1,
+            'char' => 'a',
+            'string' => 'string',
+            'getNumber' => function () {
+                return $this->number;
+            },
+            'getChar' => function () {
+                return $this->char;
+            },
+        ], [
+            'number' => 2,
+            'getNumber' => function () {
+                return $this->number;
+            },
+            'getString' => function () {
+                return $this->string;
+            },
+        ]);
+
+        $this->assertSame(2, $me->getNumber());
+        $this->assertSame(1, $me->getNumber->parent());
+        $this->assertSame(1, $me->parent->getNumber());
+    }*/
 }

@@ -79,4 +79,9 @@ class Method
             func_get_args()
         );
     }
+
+    public function extend(\Closure $method)
+    {
+        return new Method($this, $method);
+    }
 }
