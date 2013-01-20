@@ -1,6 +1,5 @@
 <?php
 
-
 class Object
 {
     private $refs = [];
@@ -20,8 +19,8 @@ class Object
     {
         $value = null;
         if (isset($this->refs[$key])) {
-            $value = $this->refs[$key];
-        } elseif (array_key_exists($key, $this->local)) {
+            $value = $this->refs[$key]->{$key};
+        } elseif (isset($this->local[$key])) {
             $value = $this->local[$key];
             if ($value instanceof Closure) {
                 $value = $value->bindTo($this);
@@ -36,7 +35,7 @@ class Object
     public function __set($key, $value)
     {
         if ($key == 'parent') {
-            throw new BadMethodCallException('Forbidden to redefine parent');
+            throw new InvalidArgumentException('Forbidden to redefine parent');
         } elseif ($value instanceof Closure
             && isset($this->local[$key])
             && $this->local[$key] instanceof Closure
@@ -49,26 +48,17 @@ class Object
 
     public function __call($method, array $args)
     {
-        $value = null;
-        $pointer = isset($args['__pointer__']) ? $args['__pointer__'] : $this;
-        if (isset($this->refs[$method]) && $this->refs[$method] !== $pointer) {
-            $args['__pointer__'] = $pointer;
-            $value = call_user_func_array(
-                $this->refs[$method]->{$method},
-                $args
-            );
-        } elseif (
-            isset($this->local[$method])
-            && $this->local[$method] instanceof Closure
-        ) {
-            unset($args['__pointer__']);
-            $value = call_user_func_array(
-                $this->local[$method],
-                $args
-            );
-        }
+        return call_user_func_array(
+            $this->{$method},
+            $args
+        );
+    }
 
-        return $value;
+    public function parent()
+    {
+        return call_user_func_array(
+            $this->parent,
+        );
     }
 }
 
@@ -78,9 +68,12 @@ $o->getNumber = function () {
     return 1;
 };
 $o->getNumber = function () {
-    return $this->parent;
+    return $this->parent() * 2;
 };
 
 var_dump([
     $o->getNumber(),
 ]);
+
+one_object = one_method
+closure
