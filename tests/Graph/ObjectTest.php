@@ -3,6 +3,18 @@ namespace Graph;
 
 class ObjectText extends \PHPUnit_Framework_TestCase
 {
+    public function testConstructor()
+    {
+        $me = new Object([
+            'number' => 1,
+            'getNumber' => function () {
+                return $this->number;
+            },
+        ]);
+
+        $this->assertSame(1, $me->getNumber());
+    }
+
     public function testSetGetProperty()
     {
         $me = new Object();

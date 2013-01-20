@@ -5,6 +5,16 @@ class Object
 {
     private $object = [];
 
+    public function __construct()
+    {
+        $args = func_get_args();
+        if (count($args) == 1 && is_array($args)) {
+            foreach ($args[0] as $key => $value) {
+                $this->{$key} = $value;
+            }
+        }
+    }
+
     public function __set($key, $value)
     {
         if (!$value instanceof \Closure) {
