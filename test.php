@@ -30,7 +30,12 @@ $o->getNumber = function () {
 $o->getNumber = function () {
     return $this->parent() * 3;
 };
+$o->property='property';
+$o->getProperty=function(){
+    return $this->property;
+};
 
 var_dump([
     $o->getNumber(),
+    $o->getProperty(),
 ]);
