@@ -105,4 +105,23 @@ class MethodTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(2, $m2());
         $this->assertSame(1, $m2->parent());
     }
+
+    public function testStack()
+    {
+        $first = new Method(function ($number) {
+            return $number + 1;
+        }, function ($number) {
+            return $this->parent($number) * 2;
+        });
+
+        $second = new Method(
+            $first->parent,
+            function ($number) {
+                return $this->parent($number) * 3;
+            }
+        );
+
+        $this->assertSame(4, $first(1));
+        $this->assertSame(6, $second(1));
+    }
 }

@@ -12,16 +12,20 @@ class Method
     {
         $args = func_get_args();
         if (count($args) == 2
-            && $args[0] instanceof Method
+            && ($args[0] instanceof Method || is_null($args[0]))
             && $args[1] instanceof \Closure
         ) {
             list($this->_parent, $this->method) = $args;
-        } elseif (count($args) == 1
-            && $args[0] instanceof \Closure
-        ) {
-            list($this->method) = $args;
         } else {
-            throw new \InvalidArgumentException('Invalid args');
+            $parent = null;
+            $this->method = array_pop($args);
+            if (!$this->method instanceof \Closure) {
+                throw new \InvalidArgumentException('Last arg must be Closure');
+            }
+            foreach ($args as $arg) {
+                $parent = new Method($parent, $arg);
+            }
+            $this->_parent = $parent;
         }
         $this->method = $this->method->bindTo($this);
         $this->context = $this;
