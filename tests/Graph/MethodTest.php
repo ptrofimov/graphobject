@@ -15,16 +15,16 @@ class MethodTest extends \PHPUnit_Framework_TestCase
 
     public function testInheritance()
     {
-        $first = new Method(function () {
-            return 1;
+        $first = new Method(function ($number) {
+            return $number;
         });
         $second = new Method($first, function () {
-            return $this->parent() * 2;
+            return $this->parent(1) * 2;
         });
 
         $this->assertSame(2, $second());
         $this->assertSame($first, $second->parent);
-        $this->assertSame(1, $second->parent());
+        $this->assertSame(1, $second->parent(1));
         $this->assertNull($second->parent->parent);
     }
 
@@ -38,16 +38,57 @@ class MethodTest extends \PHPUnit_Framework_TestCase
 
     public function testSetContext()
     {
-        $object = new \StdClass();
-        $object->property = 'property';
+        $context = new \StdClass();
+        $me = new Method(function () {
+            return 1;
+        });
+
+        $this->assertSame($me, $me->getContext());
+
+        $this->assertSame($me, $me->setContext($context));
+        $this->assertSame($context, $me->getContext());
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testSetInvalidContext()
+    {
+        $me = new Method(function () {
+            return 1;
+        });
+        $me->setContext(null);
+    }
+
+    public function testExpandContext()
+    {
+        $context = new \StdClass();
+        $context->property = 'context';
+
         $me = new Method(function () {
             return $this->property;
         });
 
         $this->assertNull($me());
+        $this->assertNull($me->property);
+        $this->assertSame('context', $context->property);
 
-        $me->setContext($object);
+        $me->property = 'method';
 
-        $this->assertSame('property', $me());
+        $this->assertSame('method', $me());
+        $this->assertSame('method', $me->property);
+        $this->assertSame('context', $context->property);
+
+        $me->setContext($context);
+
+        $this->assertSame('context', $me());
+        $this->assertSame('context', $me->property);
+        $this->assertSame('context', $context->property);
+
+        $me->property = 'updated';
+
+        $this->assertSame('updated', $me());
+        $this->assertSame('updated', $me->property);
+        $this->assertSame('updated', $context->property);
     }
 }

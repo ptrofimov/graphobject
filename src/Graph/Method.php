@@ -6,6 +6,7 @@ class Method
     private $_parent;
     private $method;
     private $context;
+    private $properties = [];
 
     public function __construct()
     {
@@ -23,18 +24,42 @@ class Method
             throw new \InvalidArgumentException('Invalid args');
         }
         $this->method = $this->method->bindTo($this);
+        $this->context = $this;
     }
 
     public function setContext($context)
     {
+        if (!is_object($context)) {
+            throw new \InvalidArgumentException('Context must be object');
+        }
         $this->context = $context;
+
+        return $this;
+    }
+
+    public function getContext()
+    {
+        return $this->context;
     }
 
     public function __get($key)
     {
-        return $key == 'parent'
-            ?
-            $this->_parent : ($this->context ? $this->context->{$key} : null);
+        if ($key == 'parent') {
+            return $this->_parent;
+        }
+
+        return $this->context !== $this
+            ? $this->context->{$key}
+            : (isset($this->properties[$key]) ? $this->properties[$key] : null);
+    }
+
+    public function __set($key, $value)
+    {
+        if ($this->context !== $this) {
+            $this->context->{$key} = $value;
+        } else {
+            $this->properties[$key] = $value;
+        }
     }
 
     public function parent()
