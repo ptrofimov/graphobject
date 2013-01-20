@@ -1,0 +1,17 @@
+{
+    "name":"ptrofimov/graphobject",
+    "authors":[
+        {
+            "name":"Petr Trofimov",
+            "email":"petrofimov@yandex.ru"
+        }
+    ],
+    "require":{
+        "php":">=5.4"
+    },
+    "autoload":{
+        "psr-0":{
+            "Graph":"src"
+        }
+    }
+}

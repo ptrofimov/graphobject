@@ -1,4 +1,5 @@
 <?php
+namespace Graph;
 
 class Method
 {
@@ -10,11 +11,11 @@ class Method
         $args = func_get_args();
         if (count($args) == 2
             && $args[0] instanceof Method
-            && $args[1] instanceof Closure
+            && $args[1] instanceof \Closure
         ) {
             list($this->_parent, $this->method) = $args;
         } elseif (count($args) == 1
-            && $args[0] instanceof Closure
+            && $args[0] instanceof \Closure
         ) {
             list($this->method) = $args;
         } else {
@@ -46,22 +47,3 @@ class Method
         );
     }
 }
-
-$method = new Method(function () {
-    return 1;
-});
-
-$method = new Method($method, function () {
-    return 2;
-});
-
-$method = new Method($method, function () {
-    return 3;
-});
-
-var_dump([
-    $method(),
-    $method->parent(),
-    $method->parent()->parent(),
-    $method->parent->parent,
-]);

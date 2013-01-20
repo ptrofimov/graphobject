@@ -1,79 +1,36 @@
 <?php
+require_once(__DIR__ . '/vendor/autoload.php');
 
-class Object
-{
-    private $refs = [];
-    private $local = [];
+use Graph\Method;
+use Graph\Object;
 
-    public function __construct()
-    {
-        $args = func_get_args();
-        if (count($args) == 2 && is_object($args[0]) && is_array($args[1])) {
-            list($this->refs['parent'], $this->local) = $args;
-        } elseif (count($args) == 1 && is_array($args[0])) {
-            list($this->local) = $args;
-        }
-    }
+$method = new Method(function () {
+    return 1;
+});
 
-    public function __get($key)
-    {
-        $value = null;
-        if (isset($this->refs[$key])) {
-            $value = $this->refs[$key]->{$key};
-        } elseif (isset($this->local[$key])) {
-            $value = $this->local[$key];
-            if ($value instanceof Closure) {
-                $value = $value->bindTo($this);
-            }
-        } elseif (isset($this->refs['parent'])) {
-            $value = $this->refs['parent']->{$key};
-        }
+$method = new Method($method, function () {
+    return 2;
+});
 
-        return $value;
-    }
+$method = new Method($method, function () {
+    return 3;
+});
 
-    public function __set($key, $value)
-    {
-        if ($key == 'parent') {
-            throw new InvalidArgumentException('Forbidden to redefine parent');
-        } elseif ($value instanceof Closure
-            && isset($this->local[$key])
-            && $this->local[$key] instanceof Closure
-        ) {
-            $this->refs[$key] = new static($this, [$key => $value]);
-        } else {
-            $this->local[$key] = $value;
-        }
-    }
-
-    public function __call($method, array $args)
-    {
-        return call_user_func_array(
-            $this->{$method},
-            $args
-        );
-    }
-
-    public function parent()
-    {
-        return call_user_func_array(
-            $this->parent,
-        );
-    }
-}
-
+var_dump([
+    $method(),
+    $method->parent(),
+    $method->parent->parent(),
+    $method->parent->parent,
+]);
 
 $o = new Object();
 $o->getNumber = function () {
     return 1;
 };
 $o->getNumber = function () {
-    return $this->parent() * 2;
+    return $this->parent() * 3;
 };
 
 var_dump([
     $o->getNumber(),
 ]);
-
-one_object = one_method
-closure
