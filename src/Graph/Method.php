@@ -32,7 +32,9 @@ class Method
 
     public function __get($key)
     {
-        return $key == 'parent' ? $this->_parent : $this->context->{$key};
+        return $key == 'parent'
+            ?
+            $this->_parent : ($this->context ? $this->context->{$key} : null);
     }
 
     public function parent()
