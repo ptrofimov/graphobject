@@ -55,8 +55,13 @@ $method = new Method($method, function () {
     return 2;
 });
 
+$method = new Method($method, function () {
+    return 3;
+});
+
 var_dump([
     $method(),
     $method->parent(),
-    $method->parent,
+    $method->parent()->parent(),
+    $method->parent->parent,
 ]);
