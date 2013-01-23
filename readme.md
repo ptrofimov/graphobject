@@ -36,7 +36,7 @@ $this->assertSame(1, $second->parent(1));
 $this->assertNull($second->parent->parent);
 ```
 
-Have created sequence of inherited methods (tree-structure of methods)
+Having created sequence of inherited methods (tree-structure of methods)
 we can embed this structure into different contexts, the same time creating objects.
 
 ```php
@@ -68,7 +68,7 @@ For other usage see tests/Graph/MethodTest.php
 
 ### Dynamic contexts
 
-Let's create usual dynamic object with dynamic propery and dynamic method.
+Let's create usual dynamic object with dynamic property and dynamic method.
 
 ```php
 $me = new Object([
@@ -81,8 +81,8 @@ $me = new Object([
 $this->assertSame(1, $me->getNumber());
 ```
 
-Have embedded tree-structures of methods into context,
-we can inherit them one upon other using simple interface (like stack).
+Having embedded tree-structures of methods into context,
+we can inherit them one from another using simple interface (like stack).
 
 ```php
 $me = new Object();
@@ -107,6 +107,6 @@ This is the way we can inherit methods without changing context (each new method
 stays connected to the same set of properties and methods, but doesn't lose
 the possibility to have parent and childs).
 
-Have changed context we can imitate usual and natural object inheritance.
+Having changed context we can imitate usual and natural object inheritance.
 
 This is it.
